@@ -1,23 +1,36 @@
 const express = require('express')
 const breads = express.Router()
 const Bread = require('../models/breads.js')
+// somewhere at the top with the other dependencies 
+const Baker = require('../models/baker.js')
 
-
-// NEW
+// in the new route
 breads.get('/new', (req, res) => {
-    res.render('new')
+    Baker.find()
+        .then(foundBakers => {
+            res.render('new', {
+                bakers: foundBakers
+            })
+      })
 })
 
-// INDEX
+
+
+// Index:
 breads.get('/', (req, res) => {
-  Bread.find()
+  Baker.find()
+    .then(foundBakers => {
+      Bread.find()
       .then(foundBreads => {
           res.render('index', {
               breads: foundBreads,
+              bakers: foundBakers,
               title: 'Index Page'
           })
       })
+    })
 })
+
 
 
 
@@ -38,27 +51,34 @@ breads.post('/', (req, res) => {
   })
 
 
-// EDIT
-breads.get('/:id/edit', (req, res) => {
-  Bread.findById(req.params.id) 
-    .then(foundBread => { 
-      res.render('edit', {
-        bread: foundBread 
+  breads.get('/:id/edit', (req, res) => {
+    Baker.find()
+      .then(foundBakers => {
+          Bread.findById(req.params.id)
+            .then(foundBread => {
+              res.render('edit', {
+                  bread: foundBread, 
+                  bakers: foundBakers
+              })
+            })
       })
-    })
   })
-//SHOW
+
+// SHOW
 breads.get('/:id', (req, res) => {
-    Bread.findById(req.params.id)
+  Bread.findById(req.params.id)
+      .populate('baker')
       .then(foundBread => {
         res.render('show', {
-          bread: foundBread
+            bread: foundBread
         })
       })
       .catch(err => {
         res.send('404')
       })
-  })
+})
+
+
 
 
   // UPDATE
@@ -76,6 +96,7 @@ breads.get('/:id', (req, res) => {
   })
   
   
+  
 
 // DELETE
 breads.delete('/:id', (req, res) => {
@@ -84,7 +105,6 @@ breads.delete('/:id', (req, res) => {
       res.status(303).redirect('/breads')
     })
   })
-
   breads.get('/data/seed', (req, res) => {
     Bread.insertMany([
       {
@@ -113,6 +133,8 @@ breads.delete('/:id', (req, res) => {
         res.redirect('/breads')
       })
   })
+  
+  
   
 
   
