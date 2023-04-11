@@ -4,6 +4,9 @@ const Bread = require('../models/breads.js')
 // somewhere at the top with the other dependencies 
 const Baker = require('../models/baker.js')
 
+
+
+
 // in the new route
 breads.get('/new', (req, res) => {
     Baker.find()
@@ -17,19 +20,18 @@ breads.get('/new', (req, res) => {
 
 
 // Index:
-breads.get('/', (req, res) => {
-  Baker.find()
-    .then(foundBakers => {
-      Bread.find()
-      .then(foundBreads => {
-          res.render('index', {
-              breads: foundBreads,
-              bakers: foundBakers,
-              title: 'Index Page'
-          })
-      })
-    })
+breads.get('/', async (req, res) => {
+  const foundBakers = await Baker.find().lean() 
+  const foundBreads = await Bread.find().limit(140).lean() 
+  res.render('index', {
+    breads: foundBreads,
+    bakers: foundBakers,
+    title: 'Index Page'
+  })
 })
+
+
+
 
 
 
